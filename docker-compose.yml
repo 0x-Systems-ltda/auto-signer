@@ -1,0 +1,38 @@
+# ISOLATED stack for the auto-signer + its custody backend. Deliberately separate from the APIX
+# docker/ stack: the auto-signer reaches APIX over plain HTTP (APIX_BASE_URL) and never shares
+# APIX's postgres/redis/network. Each customer runs their own auto-signer.
+#
+#   docker compose up                # auto-signer + Localstack (Secrets Manager mock)
+#   docker compose -f docker-compose.yml -p auto-signer up
+name: auto-signer
+
+services:
+  auto-signer:
+    build: .
+    image: 0x-systems/auto-signer:dev
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      localstack:
+        condition: service_healthy
+    networks: [auto-signer-net]
+
+  localstack:
+    # Local Secrets Manager for local/dev. In production AWS_ENDPOINT_URL is unset and the
+    # auto-signer talks to real AWS — remove this service entirely.
+    image: localstack/localstack:3.4
+    environment:
+      SERVICES: secretsmanager
+      DEBUG: "1"
+    ports:
+      - "4566:4566"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [auto-signer-net]
+
+networks:
+  auto-signer-net:
+    driver: bridge

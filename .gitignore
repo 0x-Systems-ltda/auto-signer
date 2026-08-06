@@ -1,0 +1,13 @@
+# Built binary
+/auto-signer
+/out/
+/dist/
+
+# Local env (the real AUTOFIN_API_KEY / AWS creds never get committed)
+.env
+.env.local
+.env.*.local
+
+# Editor/OS noise
+.DS_Store
+*.swp

@@ -1,0 +1,11 @@
+.git
+.gitignore
+*.md
+.env
+.env.*
+docker-compose.yml
+Dockerfile
+.dockerignore
+auto-signer
+out/
+dist/
